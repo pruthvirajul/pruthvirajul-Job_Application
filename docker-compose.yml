@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  employee-side:
+    build: ./Employee-side
+    ports:
+      - "7967:80"
+    depends_on:
+      - backend
+
+  hr-view-posting:
+    build:
+      context: ./HR-view
+    ports:
+      - "7968:80"
+    depends_on:
+      - backend
+
+  backend:
+    build: ./Backend
+    ports:
+      - "3324:3324"
+    environment:
+      - PORT=3324
+      - DB_USER=postgres
+      - DB_PASSWORD=admin
+      - DB_NAME=employee_portal
+      - DB_HOST=postgres
+      - DB_PORT=5432
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:14
+    restart: always
+    ports:
+      - "5985:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: employee_portal
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  pgdata:
+
